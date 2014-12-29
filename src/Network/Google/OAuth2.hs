@@ -122,6 +122,24 @@ getAccessToken client scopes Nothing = do
 
     return $ accessToken refreshed
 
+
+-- | Get an access token given the scopes from a file
+--
+-- This is used when you want to strictly attempt to read tokens from a file.
+-- If the token isn't valid, it will return Nothing.
+useAccessToken :: OAuth2Client
+               -> [OAuth2Scope]
+               -> FilePath
+               -> IO (Maybe OAuth2Token)
+useAccessToken client scopes tokenFile = do
+    cached <- cachedTokens tokenFile
+    case cached of
+        (Just t) -> do
+            refreshed <- refreshTokens client t
+            void $ cacheTokens tokenFile refreshed
+            return . Just $ accessToken refreshed
+        Nothing -> return Nothing
+
 -- | Prompt the user for a verification code and exchange it for tokens
 newTokens :: OAuth2Client -> [OAuth2Scope] -> IO OAuth2Tokens
 newTokens client scopes = do
