@@ -9,6 +9,7 @@ module Network.Google.OAuth2
 
     -- * Getting an access token
     , getAccessToken
+    , useAccessToken
 
     -- * Lower-level steps
     , newTokens
@@ -128,10 +129,9 @@ getAccessToken client scopes Nothing = do
 -- This is used when you want to strictly attempt to read tokens from a file.
 -- If the token isn't valid, it will return Nothing.
 useAccessToken :: OAuth2Client
-               -> [OAuth2Scope]
-               -> FilePath
-               -> IO (Maybe OAuth2Token)
-useAccessToken client scopes tokenFile = do
+               -> FilePath               -- ^ File where the token is cached
+               -> IO (Maybe OAuth2Token) -- ^ Resulting token
+useAccessToken client tokenFile = do
     cached <- cachedTokens tokenFile
     case cached of
         (Just t) -> do
